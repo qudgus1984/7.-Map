@@ -34,7 +34,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // pLocation과 spanValue 값을 매개변수로 하여 MKCoordinateRegionMake 함수를 호출하고 리턴 값을 pRegion으로 받음
         myMap.setRegion(pRegion, animated: true) // pRegion값을 매개변수로 하여 myMap.setRegion 함수를 호출
     }
-    func locationManager(_manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let pLocation = locations.last // 위치가 업데이트되면 먼저 마지막 위치 값을 찾아냄
         goLocation(latitudeValue: (pLocation?.coordinate.latitude)!, longitudeValue: (pLocation?.coordinate.longitude)!, delta: 0.01)
         CLGeocoder().reverseGeocodeLocation(pLocation!, completionHandler: {
