@@ -25,7 +25,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.startUpdatingLocation() // 위치 업데이트를 시작함
         myMap.showsUserLocation = true // 위치 보기 값을 true로 설정함
     }
-    func goLocation(latitudeValue: CLLocationDegrees, longitudeValue : CLLocationDegrees, delta span :Double) {
+    func goLocation(latitudeValue: CLLocationDegrees, longitudeValue : CLLocationDegrees, delta span :Double) -> CLLocationCoordinate2D {
         let pLocation = CLLocationCoordinate2DMake(latitudeValue, longitudeValue)
         // 위도 값과 경도 값을 매개변수로 하여 CLLocationCoordinate2DMake 함수를 호출하고 리턴값을 pLocation으로 받음
         let spanValue = MKCoordinateSpan(latitudeDelta: span, longitudeDelta: span)
@@ -33,10 +33,22 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         let pRegion = MKCoordinateRegion(center: pLocation, span: spanValue)
         // pLocation과 spanValue 값을 매개변수로 하여 MKCoordinateRegionMake 함수를 호출하고 리턴 값을 pRegion으로 받음
         myMap.setRegion(pRegion, animated: true) // pRegion값을 매개변수로 하여 myMap.setRegion 함수를 호출
+        return pLocation
+    }
+    
+    func setAnnotation(latitudeValue: CLLocationDegrees, longitudeValue : CLLocationDegrees, delta span :Double, title strTitle: String, subtitle strSubtitle:String) {
+        let annotation = MKPointAnnotation()
+        // 핀을 설치하기 위해 MKPointAnnotation 함수를 호출하여 리턴값을 annotation으로 받음
+        annotation.coordinate = goLocation(latitudeValue: latitudeValue, longitudeValue: longitudeValue, delta: span)
+        // annotation의 coordinate 값을 goLocation 함수로부터 CLLocation2D 형태로 받아야 하는데 이를 위해서 goLocation 함수를 수정해야 함
+        annotation.title = strTitle
+        annotation.subtitle = strSubtitle
+        myMap.addAnnotation(annotation)
     }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let pLocation = locations.last // 위치가 업데이트되면 먼저 마지막 위치 값을 찾아냄
-        goLocation(latitudeValue: (pLocation?.coordinate.latitude)!, longitudeValue: (pLocation?.coordinate.longitude)!, delta: 0.01)
+        _ = goLocation(latitudeValue: (pLocation?.coordinate.latitude)!, longitudeValue:
+                    (pLocation?.coordinate.longitude)!, delta: 0.01)
         CLGeocoder().reverseGeocodeLocation(pLocation!, completionHandler: {
             (placemarks, error) -> Void in
             let pm = placemarks!.first // placemarks 값의 첫 부분만 pm 상수로 대입
@@ -62,6 +74,23 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
 
     @IBAction func sgChangeLocation(_ sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            self.lblLocationInfo1.text = ""
+            self.lblLocationInfo2.text = ""
+            locationManager.startUpdatingLocation()
+            // 현재 위치 표시
+        } else if sender.selectedSegmentIndex == 1 {
+            setAnnotation(latitudeValue: 37.602638, longitudeValue: 126.955252, delta: 1, title: "상명대학교 서울캠퍼스", subtitle: "서울특별시 종로구 홍지문2길 20")
+            self.lblLocationInfo1.text = "보고 계신 위치"
+            self.lblLocationInfo2.text = "상명대학교 서울캠퍼스"
+            // 상명대학교 표시
+        } else if sender.selectedSegmentIndex == 2 {
+            setAnnotation(latitudeValue: 37.506074, longitudeValue: 126.860826, delta: 0.1, title: "우리 집", subtitle: "서울특별시 중앙로 12길 17-8")
+            self.lblLocationInfo1.text = "보고 계신 위치"
+            self.lblLocationInfo2.text = "고척 리가아파트"
+            // 우리 집 표시
+        }
+        
     }
     
 }
